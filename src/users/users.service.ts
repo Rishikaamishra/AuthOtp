@@ -1,39 +1,101 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './users.entity';
-import * as bcrypt from 'bcryptjs';
+import { IsNull, Not, Repository } from 'typeorm';
+import { User } from './entities/user.entity';
 
 @Injectable()
-export class UsersService {
+export class UserService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(name: string, email: string, password: string) {
-    const hash = await bcrypt.hash(password, 10);
-    const user = this.userRepository.create({ name, email, password: hash });
-    return this.userRepository.save(user);
+  async findAll(query: {
+    page?: number;
+    limit?: number;
+    sortBy?: keyof User;
+    order?: 'ASC' | 'DESC';
+    isActive?: boolean;
+  }) {
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = 'createdAt',
+      order = 'DESC',
+      isActive,
+    } = query;
+
+    const where: any = { isDeleted: false };
+    if (typeof isActive === 'boolean') {
+      where.isActive = isActive;
+    }
+
+    const [data, total] = await this.userRepository.findAndCount({
+      where,
+      order: { [sortBy]: order },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      data,
+      total,
+      page,
+      pageCount: Math.ceil(total / limit),
+    };
   }
 
-  findByEmail(email: string) {
-    return this.userRepository.findOne({ where: { email } });
+
+  async activateUser(id: number): Promise<string> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) throw new Error('User not found');
+    user.isActive = true;
+    await this.userRepository.save(user);
+    return 'User activated';
   }
 
-  findAll() {
-    return this.userRepository.find();
+  async getPaginatedUsers(
+    page: number,
+    limit: number,
+    sort: string,
+    order: 'ASC' | 'DESC',
+    status?: 'active' | 'inactive',
+  ) {
+    const where: any = { isDeleted: false };
+    if (status === 'active') where.isActive = true;
+    if (status === 'inactive') where.isActive = false;
+
+    const [users, total] = await this.userRepository.findAndCount({
+      where,
+      order: { [sort]: order },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return { total, page, limit, users };
   }
 
-  findDeleted() {
-    return this.userRepository.find({ where: { isDeleted: true } });
-  }
+  
 
-  activateUser(userId: string) {
-    return this.userRepository.update(userId, { isActive: true });
-  }
 
-  findById(id: string) {
-    return this.userRepository.findOne({ where: { id } });
-  }
+async softDeleteUser(id: number): Promise<string> {
+  const user = await this.userRepository.findOne({ where: { id } });
+
+  if (!user) throw new NotFoundException('User not found');
+
+  user.isDeleted = true;
+  await this.userRepository.softRemove(user);
+
+  return `User with ID ${id} has been soft-deleted.`;
+}
+
+async findDeleted(): Promise<User[]> {
+  return this.userRepository.find({
+    withDeleted: true,
+    where: {
+      deletedAt: Not(IsNull()),
+    },
+    select: ['id', 'name', 'email', 'role', 'deletedAt'],
+  });
+}
 }

@@ -1,6 +1,6 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { User } from 'src/users/users.entity';
-import { Otp } from 'src/otps/otp.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Otp } from 'src/otp/entities/otp.entity';
 
 console.log(`${__dirname}/../user/migration/*-migration{.ts,.js}`);
 
