@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { JwtStrategy } from './strategy/jwt.strategy';
+import { JwtStrategy } from './guards/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
-import { MailerModule } from 'src/mailer/mailer.module';
+import { MailerModule } from 'src/utils/mailer/mailer.module';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';

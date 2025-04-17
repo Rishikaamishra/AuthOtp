@@ -1,47 +1,27 @@
-import { Otp } from 'src/otp/entities/otp.entity';
+
+
 import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    CreateDateColumn,
-    UpdateDateColumn,
-    DeleteDateColumn,
-    OneToMany,
-  } from 'typeorm';
-  
-  @Entity()
-  export class User {
-    @PrimaryGeneratedColumn()
-    id: number;
-  
-    @Column()
-    name: string;
-  
-    @Column({ unique: true })
-    email: string;
-  
-    @Column()
-    password: string;
-  
-    @Column({ default: 'user' })
-    role: string;
-  
-    @Column({ default: true })
-    isActive: boolean;
-  
-    @Column({ default: false })
-    isDeleted: boolean;
-  
-    @CreateDateColumn()
-    createdAt: Date;
-  
-    @UpdateDateColumn()
-    updatedAt: Date;
-  
-    @DeleteDateColumn({ nullable: true })
-    deletedAt?: Date;  // <-- new field for soft delete
+  Entity, PrimaryGeneratedColumn, Column,
+  OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn
+} from 'typeorm';
+import { Otp } from 'src/otp/entities/otp.entity';
+import { Role } from 'src/utils/common/enum/role.enum';
 
-    @OneToMany(()=>Otp, otp => otp.user)
-    otps: Otp[];
-  }
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()       id: number;
+  @Column()                      name: string;
+  @Column({ unique: true })      email: string;
+  @Column()                      password: string;
+  @Column({ type: 'enum', enum: Role, default: Role.USER })
+ role: Role;
+  @Column({ default: false })    isActive: boolean;
+  @Column({ default: false })    isDeleted: boolean;
 
+  @OneToMany(() => Otp, otp => otp.user)
+  otps: Otp[];
+
+  @CreateDateColumn()            createdAt: Date;
+  @UpdateDateColumn()            updatedAt: Date;
+  @DeleteDateColumn()            deletedAt?: Date;
+}

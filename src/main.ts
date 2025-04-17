@@ -5,13 +5,13 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  // ... existing code
+ 
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
-    .setTitle('Auth System API')
+    .setTitle('User Management API')
     .setDescription('APIs for User/Admin Login, Signup, OTP, etc.')
     .setVersion('1.0')
-    .addBearerAuth() // For JWT token in headers
+    .addBearerAuth() 
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

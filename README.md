@@ -1,104 +1,170 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# User Management API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This is a **NestJS** application providing a user management system with:
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+**Authentication** (signup, login)
+**Role-based authorization** (user/admin)
+**OTP** generation & verification
+**Soft-delete** users
+**Admin** endpoints to manage users & OTPs
+**SendGrid** email integration
+**TypeORM** with PostgreSQL
+**Swagger** API documentation
+**Cron job** to clean expired OTPs
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Table of Contents
 
-## Project setup
+[Features](#features)
+[Prerequisites](#prerequisites)
+[Installation](#installation)
+[Configuration](#configuration)
+[Database Setup](#database-setup)
+[Running the App](#running-the-app)
+[Seeding Admin User](#seeding-admin-user)
+[API Documentation](#api-documentation)
+[Endpoints](#endpoints)
+[Cron Job](#cron-job)
+[Testing](#testing)
 
-```bash
-$ npm install
-```
+---
 
-## Compile and run the project
+## Features
 
-```bash
-# development
-$ npm run start
+**User module**: pagination, filtering by status, activate, soft-delete
+**Auth module**: signup (with OTP email), login (JWT)
+**OTP module**: generate & verify OTP for two-factor-like flow
+**Admin module**: manage users and view OTP logs
+**Mailer**: welcome email, OTP email, admin notification via SendGrid
+**Swagger** UI at /api
+**Environment-based** configuration via @nestjs/config
 
-# watch mode
-$ npm run start:dev
+---
 
-# production mode
-$ npm run start:prod
-```
+## Prerequisites
 
-## Run tests
+Node.js v16+ and npm
+PostgreSQL database
+SendGrid account with verified sender email
+Git
 
-```bash
-# unit tests
-$ npm run test
+---
 
-# e2e tests
-$ npm run test:e2e
+## Installation
+bash
+# Clone the repo
+git clone <repo-url>
+cd user-management-api
 
-# test coverage
-$ npm run test:cov
-```
+# Install dependencies
+npm install
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Configuration
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+1. Create a .env file in the project root:
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+  
+ini
+   DATABASE_URL=postgres://<DB_USER>:<DB_PASS>@<HOST>:<PORT>/<DB_NAME>
+   JWT_SECRET=<your_jwt_secret>
+   SENDGRID_API_KEY=<your_sendgrid_api_key>
+   FROM_EMAIL=<your_verified_from_email>
+   ADMIN_EMAIL=<admin_notification_email>
+  
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+2. Ensure the .env values are accessible (the app uses ConfigModule.forRoot({ isGlobal: true })).
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+## Database Setup
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+This project uses **TypeORM** with synchronize: true for development. In production, you should switch to migrations.
+bash
+# Ensure your database exists:
+createdb authdb
 
-## Support
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Running the App
+bash
+npm run start:dev
 
-## Stay in touch
+The server will start at http://localhost:3000.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
+
+## Seeding Admin User
+
+To create a default admin, run the seeder script:
+bash
+# Using ts-node
+npx ts-node seed-admin.ts
+
+Outputs:
+Admin user created or
+Admin user already exists
+
+---
+
+## API Documentation
+
+Swagger UI is available at:
+http://localhost:3000/api
+
+Browse, test endpoints, view models, and example responses.
+
+---
+
+## Endpoints
+
+### Authentication
+
+POST /auth/signup - Register a new user (sends OTP & welcome emails)
+POST /auth/login  - Authenticate and obtain JWT
+
+### Users (Admin only)
+
+GET /users?status={active|inactive}&page=1&limit=10 - Paginated user list
+GET /users/deleted - List soft-deleted users
+PATCH /users/{id}/activate - Activate a user
+DELETE /users/{id} - Soft-delete a user
+
+### OTP (Authenticated)
+
+POST /otp/generate - Generate OTP for current user
+POST /otp/verify   - Verify OTP (requires { "actualOtp": "123456" })
+
+### Admin Module (Admin only)
+
+PATCH /admin/users/{id}/activate
+GET /admin/users?page=1&limit=10
+GET /admin/users/deleted
+GET /admin/otps
+
+---
+
+## Cron Job
+
+A scheduled task runs every hour to delete expired OTPs (older than 10 minutes). It uses @nestjs/schedule and a @Cron('0 * * * *') decorator.
+
+---
+
+## Testing
+
+Use **Postman** or Swagger UI to test endpoints:
+Signup → Check user & OTP in DB, receive emails
+Login → Obtain JWT
+Protected routes → Include Authorization: Bearer <token>
+
+For unit/integration tests, add Jest tests and mock repositories with getRepositoryToken().
+
+---
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is MIT licensed.
 
-i have to create two API login and signup, in which signup will take email, name and password , login will take email and password. Login will be for admin and user both but signup will be only for user . By deafult when anyone  signup it will go in user..there will be usertable which have id, name, email , password in hashform , createdAt , updatedAt, isDeleted (false by deafult), and role. When we login, it should return the user object. If user isActive false and isDeleted is false then only user can login. When we do signup and newuser is comming then we will send a welcome email to user, also admin should also get a mail that new user has been registered. 
-API for admin only which take userId and can activate user 
-there should be a otp table also which will have id, userId(from user table), actualOTp , createdAt, updatedAt, should contain valid constraints and both the table should have one to many relations.
-OTPGen and OTPVerify these two will be private API, which should be secured by JWT token. Again admin will have four API to activateuser, to see the user list,  to see the otp list, and to see isdeleted. 
-also we have to write background job which should in every one hour which removes the expired otp  i.e otp after every 10 minutes. tell me everything from scrach also make good file structure for eveything and I have to use migration to for creating table structure . Also use seeders to make admin record in usertable 
+---

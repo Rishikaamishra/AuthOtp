@@ -1,33 +1,20 @@
+
+
+
 import { Injectable } from '@nestjs/common';
 import { UserService } from 'src/users/users.service';
-import { OtpService } from '../otp/otp.service';
+import { OtpService }  from 'src/otp/otp.service';
 
 @Injectable()
 export class AdminService {
-  constructor(
-    private readonly userService: UserService,
-    private readonly otpService: OtpService,
-  ) {}
+  constructor(private users: UserService, private otps: OtpService) {}
 
-  async activateUser(userId: number): Promise<string> {
-    return this.userService.activateUser(userId);
-  }
-
-  async getUserList(
-    page: number,
-    limit: number,
-    sort: string,
-    order: 'ASC' | 'DESC',
-    status?: 'active' | 'inactive',
-  ) {
-    return this.userService.getPaginatedUsers(page, limit, sort, order, status);
-  }
-
-  async getOtpList() {
-    return this.otpService.findAll();
-  }
-
-  async getDeletedUsers() {
-    return this.userService.findDeleted();
-  }
+  activateUser(id: number) 
+  { return this.users.activateUser(id); }
+  listUsers(p:number,l:number) 
+   { return this.users.findAll({ page:p, limit:l }); }
+  listDeleted()             
+     { return this.users.findDeleted(); }
+  listOtps()          
+           { return this.otps.findAll(); }
 }
